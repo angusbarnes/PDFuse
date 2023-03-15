@@ -27,13 +27,20 @@ namespace PDFuse
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<string> Collection = new ObservableCollection<string>();
+        public ObservableCollection<FileRowData> Collection = new ObservableCollection<FileRowData>();
         public MainWindow()
         {
             InitializeComponent();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             FileList.DataContext = Collection;
+        }
+
+        public class FileRowData
+        {
+            public string FileName { get; set; }
+            public int FirstPage { get; set; }
+            public int LastPage { get; set; }
         }
 
         private void SelectFilesButton_Click(object sender, RoutedEventArgs e)
@@ -48,7 +55,10 @@ namespace PDFuse
             {
                 foreach(string file in dialog.FileNames)
                 {
-                    Collection.Add(file);
+                    Collection.Add(new FileRowData()
+                    {
+                        FileName = file
+                    });
                 }   
                 
             }
@@ -66,13 +76,13 @@ namespace PDFuse
             if (dialog.ShowDialog() == false)
                 return;
 
-            string[] filenames = Collection.ToArray<string>();
+            FileRowData[] filenames = Collection.ToArray<FileRowData>();
 
             PdfDocument result = new PdfDocument();
 
-            foreach(string file in filenames)
+            foreach(FileRowData file in filenames)
             {
-                PdfDocument pdf = PdfReader.Open(file, PdfDocumentOpenMode.Import);
+                PdfDocument pdf = PdfReader.Open(file.FileName, PdfDocumentOpenMode.Import);
 
                 foreach (PdfPage page in pdf.Pages)
                 {
